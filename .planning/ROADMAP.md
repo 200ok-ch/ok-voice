@@ -43,12 +43,12 @@ Plans:
   2. System establishes WebSocket connection to OpenAI Realtime Transcription API
   3. User sees transcription text arriving as they speak (streaming, not batch)
   4. System auto-detects spoken language without manual configuration
-**Plans**: TBD
+**Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 02-01: Audio capture with PipeWire
-- [ ] 02-02: WebSocket connection to OpenAI
-- [ ] 02-03: Transcription event handling and buffering
+- [ ] 02-01-PLAN.md — Audio capture with PipeWire (pw-record subprocess, base64 chunking)
+- [ ] 02-02-PLAN.md — WebSocket connection to OpenAI Realtime Transcription API
+- [ ] 02-03-PLAN.md — Transcription pipeline orchestration and core.clj integration
 
 ### Phase 3: Toggle Mode & Orchestration
 **Goal**: User can start and stop recording via external hotkey trigger (xbindkeys)

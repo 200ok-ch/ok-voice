@@ -12,11 +12,13 @@
 
 (defn start!
   "Connects to OpenAI, starts audio capture, and begins streaming transcription.
+   opts: {:on-text (fn [delta] ...)} — called with each transcription delta.
    Returns pipeline map on success, nil on failure."
-  [api-key]
+  [api-key opts]
   (reset! text-buffer "")
   (reset! ready? (promise))
-  (let [websocket (ws/connect! api-key
+  (let [on-text (:on-text opts)
+        websocket (ws/connect! api-key
                     {:on-ready
                      (fn []
                        (deliver @ready? true)
@@ -26,12 +28,10 @@
                      :on-delta
                      (fn [delta]
                        (swap! text-buffer str delta)
-                       (print delta)
-                       (flush))
+                       (when on-text (on-text delta)))
 
                      :on-completed
-                     (fn [_transcript]
-                       (println))
+                     (fn [_transcript])
 
                      :on-speech-started
                      (fn [])

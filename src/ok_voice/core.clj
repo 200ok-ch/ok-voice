@@ -13,18 +13,19 @@
   (if-let [pid (toggle/running-instance)]
     ;; Instance running → signal stop and exit
     (do
-      (let [wid (str/trim (:out (p/sh "xdotool" "getactivewindow")))]
-        (toggle/write-target-window! wid))
       (toggle/signal-stop! pid)
       (System/exit 0))
     ;; No instance → start recording
     (do
       (deps/check!)
       (let [cfg (config/load!)
-            api-key (config/validate-api-key! cfg)]
+            api-key (config/validate-api-key! cfg)
+            wid (str/trim (:out (p/sh "xdotool" "getactivewindow")))]
         (toggle/write-pid!)
         (notify/info "ok-voice" "Recording started...")
-        (let [pipeline (transcription/start! api-key)]
+        (text/activate-window! wid)
+        (let [pipeline (transcription/start! api-key
+                         {:on-text (fn [delta] (text/type-text! delta))})]
           (when-not pipeline
             (toggle/remove-pid!)
             (System/exit 1))
@@ -32,13 +33,6 @@
             (Thread. (fn []
                        (toggle/remove-pid!)
                        (transcription/stop! pipeline)
-                       (let [result (transcription/get-text)
-                             wid (toggle/read-target-window)]
-                         (toggle/remove-target-window!)
-                         (when (seq result)
-                           (binding [*out* *err*]
-                             (println "[text]" result))
-                           (text/insert-at-cursor! result wid)))
                        (notify/info "ok-voice" "Recording stopped."))))
           (deref (promise)))))))
 

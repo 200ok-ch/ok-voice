@@ -28,12 +28,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Application validates dependencies (Babashka, PipeWire, xdotool) are installed on first run
   3. User receives desktop notification if config file is missing or API key is invalid
   4. User receives desktop notification if required dependencies are not found
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] 01-01: Config file loading and validation
-- [ ] 01-02: Dependency checking
-- [ ] 01-03: Error notification system
+- [ ] 01-01-PLAN.md — Project setup and notification system
+- [ ] 01-02-PLAN.md — Config loading and dependency validation
 
 ### Phase 2: Audio Capture & Transcription
 **Goal**: System captures microphone audio and produces live, streaming transcription via OpenAI
@@ -88,7 +87,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Configuration | 0/3 | Not started | - |
+| 1. Foundation & Configuration | 0/2 | Not started | - |
 | 2. Audio Capture & Transcription | 0/3 | Not started | - |
 | 3. Toggle Mode & Orchestration | 0/2 | Not started | - |
 | 4. Text Output | 0/2 | Not started | - |

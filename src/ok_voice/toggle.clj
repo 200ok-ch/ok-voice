@@ -39,6 +39,25 @@
       pid
       (do (remove-pid!) nil))))
 
+(def ^:private wid-path (str pid-path ".wid"))
+
+(defn write-target-window! [window-id]
+  (spit wid-path (str window-id))
+  nil)
+
+(defn read-target-window []
+  (try
+    (when (.exists (io/file wid-path))
+      (let [content (str/trim (slurp wid-path))]
+        (when (seq content) content)))
+    (catch Exception _ nil)))
+
+(defn remove-target-window! []
+  (let [f (io/file wid-path)]
+    (when (.exists f)
+      (.delete f)))
+  nil)
+
 (defn signal-stop! [pid]
   (p/sh "kill" (str pid))
   nil)

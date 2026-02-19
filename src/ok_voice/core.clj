@@ -1,5 +1,7 @@
 (ns ok-voice.core
-  (:require [ok-voice.config :as config]
+  (:require [babashka.process :as p]
+            [clojure.string :as str]
+            [ok-voice.config :as config]
             [ok-voice.deps :as deps]
             [ok-voice.notify :as notify]
             [ok-voice.text :as text]
@@ -11,6 +13,8 @@
   (if-let [pid (toggle/running-instance)]
     ;; Instance running → signal stop and exit
     (do
+      (let [wid (str/trim (:out (p/sh "xdotool" "getactivewindow")))]
+        (toggle/write-target-window! wid))
       (toggle/signal-stop! pid)
       (System/exit 0))
     ;; No instance → start recording
@@ -28,11 +32,13 @@
             (Thread. (fn []
                        (toggle/remove-pid!)
                        (transcription/stop! pipeline)
-                       (let [result (transcription/get-text)]
+                       (let [result (transcription/get-text)
+                             wid (toggle/read-target-window)]
+                         (toggle/remove-target-window!)
                          (when (seq result)
                            (binding [*out* *err*]
                              (println "[text]" result))
-                           (text/insert-at-cursor! result)))
+                           (text/insert-at-cursor! result wid)))
                        (notify/info "ok-voice" "Recording stopped."))))
           (deref (promise)))))))
 

@@ -5,8 +5,9 @@
 
 (def required-deps
   [{:cmd "parecord"  :name "PulseAudio" :install "pulseaudio-utils"}
-   {:cmd "xdotool"   :name "xdotool"  :install "xdotool"}
-   {:cmd "notify-send" :name "libnotify" :install "libnotify"}])
+   {:cmd "xdotool"     :name "xdotool"    :install "xdotool"}
+   {:cmd "xclip"       :name "xclip"      :install "xclip"}
+   {:cmd "notify-send" :name "libnotify"   :install "libnotify"}])
 
 (defn check-cmd [cmd]
   (try

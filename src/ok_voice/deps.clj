@@ -4,7 +4,7 @@
             [ok-voice.notify :as notify]))
 
 (def required-deps
-  [{:cmd "pw-record" :name "PipeWire" :install "pipewire"}
+  [{:cmd "parecord"  :name "PulseAudio" :install "pulseaudio-utils"}
    {:cmd "xdotool"   :name "xdotool"  :install "xdotool"}
    {:cmd "notify-send" :name "libnotify" :install "libnotify"}])
 

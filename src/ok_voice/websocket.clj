@@ -6,9 +6,8 @@
 (def ^:private api-url "wss://api.openai.com/v1/realtime?intent=transcription")
 
 (defn- session-config []
-  {"type" "session.update"
-   "session" {"type" "transcription"
-              "input_audio_format" "pcm16"
+  {"type" "transcription_session.update"
+   "session" {"input_audio_format" "pcm16"
               "input_audio_noise_reduction" {"type" "near_field"}
               "input_audio_transcription"
                 {"model" "gpt-4o-mini-transcribe"}
@@ -20,10 +19,10 @@
 
 (defn- dispatch-event [ws event handlers]
   (case (:type event)
-    "session.created"
+    ("session.created" "transcription_session.created")
     (ws/send! ws (json/generate-string (session-config)))
 
-    "session.updated"
+    ("session.updated" "transcription_session.updated")
     (when-let [f (:on-ready handlers)] (f))
 
     "conversation.item.input_audio_transcription.delta"
@@ -55,9 +54,7 @@
       {:uri api-url
        :headers {"Authorization" (str "Bearer " api-key)
                  "OpenAI-Beta" "realtime=v1"}
-       :on-open (fn [_ws]
-                  (binding [*out* *err*]
-                    (println "[connected]")))
+       :on-open (fn [_ws] nil)
        :on-message (fn [ws data last?]
                      (.append @msg-buf data)
                      (when last?

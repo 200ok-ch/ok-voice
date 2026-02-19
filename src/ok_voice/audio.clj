@@ -20,7 +20,7 @@
   "Spawns pw-record capturing PCM16 24kHz mono to stdout.
    Returns the process object. Caller decides when/how to read."
   []
-  (p/process ["pw-record" "--raw" "--rate=24000" "--channels=1" "--format=s16" "-"]
+  (p/process ["parecord" "--raw" "--rate=24000" "--channels=1" "--format=s16le"]
              {:out :stream :err :inherit}))
 
 (defn stop!

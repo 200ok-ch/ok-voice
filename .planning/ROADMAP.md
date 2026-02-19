@@ -13,8 +13,8 @@ ok-voice delivers instant voice-to-text on Linux X11. The journey starts with co
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Configuration** - Config loading and error notifications
-- [ ] **Phase 2: Audio Capture & Transcription** - Audio pipeline and OpenAI WebSocket integration
-- [ ] **Phase 3: Toggle Mode & Orchestration** - Hotkey-triggered start/stop recording
+- [x] **Phase 2: Audio Capture & Transcription** - Audio pipeline and OpenAI WebSocket integration
+- [x] **Phase 3: Toggle Mode & Orchestration** - Hotkey-triggered start/stop recording
 - [ ] **Phase 4: Text Output** - Insert transcription at cursor via xdotool
 
 ## Phase Details
@@ -46,9 +46,9 @@ Plans:
 **Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 02-01-PLAN.md — Audio capture with PipeWire (pw-record subprocess, base64 chunking)
-- [ ] 02-02-PLAN.md — WebSocket connection to OpenAI Realtime Transcription API
-- [ ] 02-03-PLAN.md — Transcription pipeline orchestration and core.clj integration
+- [x] 02-01-PLAN.md — Audio capture with PipeWire (pw-record subprocess, base64 chunking)
+- [x] 02-02-PLAN.md — WebSocket connection to OpenAI Realtime Transcription API
+- [x] 02-03-PLAN.md — Transcription pipeline orchestration and core.clj integration
 
 ### Phase 3: Toggle Mode & Orchestration
 **Goal**: User can start and stop recording via external hotkey trigger (xbindkeys)
@@ -59,11 +59,11 @@ Plans:
   2. User presses hotkey again while recording and recording stops
   3. Application detects if already running and toggles state appropriately (singleton pattern)
   4. Multiple rapid hotkey presses do not cause race conditions or duplicate processes
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] 03-01: PID-based singleton detection
-- [ ] 03-02: Toggle mode orchestration
+- [x] 03-01-PLAN.md — PID-based singleton detection (toggle.clj)
+- [x] 03-02-PLAN.md — Toggle mode orchestration (core.clj update)
 
 ### Phase 4: Text Output
 **Goal**: Transcribed text appears at cursor position in the active window
@@ -88,6 +88,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Configuration | 2/2 | Complete | 2026-02-19 |
-| 2. Audio Capture & Transcription | 0/3 | Not started | - |
-| 3. Toggle Mode & Orchestration | 0/2 | Not started | - |
+| 2. Audio Capture & Transcription | 3/3 | Complete | 2026-02-19 |
+| 3. Toggle Mode & Orchestration | 2/2 | Complete | 2026-02-19 |
 | 4. Text Output | 0/2 | Not started | - |

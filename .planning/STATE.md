@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-19)
 
 **Core value:** Instant voice-to-text anywhere on Linux: press hotkey, speak, text appears at cursor
-**Current focus:** Phase 2 complete. Next: Toggle & Process Control (Phase 3)
+**Current focus:** Phase 3 complete. Next: Text Output (Phase 4)
 
 ## Current Position
 
-Phase: 2 of 4 (Audio Capture & Transcription)
-Plan: 3 of 3 in current phase (02-01, 02-02, 02-03 complete)
-Status: Phase 2 complete -- ready for Phase 3
-Last activity: 2026-02-19 — Completed plan 02-03 (Transcription pipeline & recording mode)
+Phase: 3 of 4 (Toggle Mode & Orchestration)
+Plan: 2 of 2 in current phase (03-01, 03-02 complete)
+Status: Phase 3 complete -- ready for Phase 4
+Last activity: 2026-02-19 — Completed plan 03-02 (Toggle mode orchestration)
 
-Progress: [█████████░] ~90% (phases 1-2 complete, phases 3-4 remaining)
+Progress: [█████████░] ~95% (phases 1-3 complete, phase 4 remaining)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 2 min
-- Total execution time: 0.15 hours
+- Total plans completed: 7
+- Average duration: 1.6 min
+- Total execution time: 0.19 hours
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: [█████████░] ~90% (phases 1-2 complete, phases 3-4
 |-------|-------|-------|----------|
 | 01 | 2 | 6 min | 3 min |
 | 02 | 3 | 3 min | 1 min |
+| 03 | 2 | 2 min | 1 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (4 min), 02-01 (1 min), 02-02 (1 min), 02-03 (1 min)
-- Trend: Accelerating
+- Last 5 plans: 02-01 (1 min), 02-02 (1 min), 02-03 (1 min), 03-01 (1 min), 03-02 (1 min)
+- Trend: Stable at ~1 min/plan
 
 *Updated after each plan completion*
 
@@ -56,7 +57,11 @@ Recent decisions affecting current work:
 - Phase 2 (02-03): Module-level atoms for pipeline state (callback access from WebSocket handlers)
 - Phase 2 (02-03): Forward-declared stop! for on-error callback reference
 - Phase 2 (02-03): Atom-wrapped promise for resettable ready synchronization
-- Phase 3 (upcoming): Toggle via PID file singleton pattern
+- Phase 3 (03-01): PID via $PPID in spawned shell (ProcessHandle unavailable in bb/GraalVM)
+- Phase 3 (03-01): No file locking -- race window negligible for hotkey use case
+- Phase 3 (03-02): Toggle check first in -main for fast stop path (no config/deps loading)
+- Phase 3 (03-02): PID written before pipeline start to minimize race window
+- Phase 3 (03-02): Shutdown hook removes PID first, then stops pipeline
 - Phase 4 (upcoming): Text insertion via xdotool with clipboard fallback for Unicode
 
 ### Pending Todos
@@ -70,5 +75,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 02-03-PLAN.md (Transcription pipeline & recording mode) -- Phase 2 complete
-Resume file: .planning/phases/02-audio-capture-transcription/02-03-SUMMARY.md
+Stopped at: Completed 03-02-PLAN.md (Toggle mode orchestration) -- Phase 3 complete
+Resume file: .planning/phases/03-toggle-mode-orchestration/03-02-SUMMARY.md

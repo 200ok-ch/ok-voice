@@ -12,7 +12,7 @@ ok-voice delivers instant voice-to-text on Linux X11. The journey starts with co
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & Configuration** - Config loading and error notifications
+- [x] **Phase 1: Foundation & Configuration** - Config loading and error notifications
 - [ ] **Phase 2: Audio Capture & Transcription** - Audio pipeline and OpenAI WebSocket integration
 - [ ] **Phase 3: Toggle Mode & Orchestration** - Hotkey-triggered start/stop recording
 - [ ] **Phase 4: Text Output** - Insert transcription at cursor via xdotool
@@ -31,8 +31,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] 01-01-PLAN.md — Project setup and notification system
-- [ ] 01-02-PLAN.md — Config loading and dependency validation
+- [x] 01-01-PLAN.md — Project setup and notification system
+- [x] 01-02-PLAN.md — Config loading and dependency validation
 
 ### Phase 2: Audio Capture & Transcription
 **Goal**: System captures microphone audio and produces live, streaming transcription via OpenAI
@@ -87,7 +87,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Configuration | 0/2 | Not started | - |
+| 1. Foundation & Configuration | 2/2 | Complete | 2026-02-19 |
 | 2. Audio Capture & Transcription | 0/3 | Not started | - |
 | 3. Toggle Mode & Orchestration | 0/2 | Not started | - |
 | 4. Text Output | 0/2 | Not started | - |

@@ -52,18 +52,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CORE-01 | - | Pending |
-| CORE-02 | - | Pending |
-| CORE-03 | - | Pending |
-| CORE-04 | - | Pending |
-| CORE-05 | - | Pending |
-| CORE-06 | - | Pending |
-| CORE-07 | - | Pending |
+| CORE-01 | Phase 3 | Pending |
+| CORE-02 | Phase 3 | Pending |
+| CORE-03 | Phase 2 | Pending |
+| CORE-04 | Phase 4 | Pending |
+| CORE-05 | Phase 2 | Pending |
+| CORE-06 | Phase 1 | Pending |
+| CORE-07 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 7 total
-- Mapped to phases: 0
-- Unmapped: 7 ⚠️
+- Mapped to phases: 7
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-19*

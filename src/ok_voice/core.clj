@@ -2,6 +2,7 @@
   (:require [ok-voice.config :as config]
             [ok-voice.deps :as deps]
             [ok-voice.notify :as notify]
+            [ok-voice.text :as text]
             [ok-voice.toggle :as toggle]
             [ok-voice.transcription :as transcription]))
 
@@ -27,11 +28,11 @@
             (Thread. (fn []
                        (toggle/remove-pid!)
                        (transcription/stop! pipeline)
-                       (let [text (transcription/get-text)]
-                         (when (seq text)
-                           (println)
-                           (println "--- Transcription ---")
-                           (println text)))
+                       (let [result (transcription/get-text)]
+                         (when (seq result)
+                           (binding [*out* *err*]
+                             (println "[text]" result))
+                           (text/insert-at-cursor! result)))
                        (notify/info "ok-voice" "Recording stopped."))))
           (deref (promise)))))))
 

@@ -87,6 +87,10 @@ Run it once to start recording, run it again to stop. The second invocation sign
 3. As transcription results arrive, text is typed into the original window via `xdotool`
 4. On second invocation (or SIGTERM), recording stops and the process exits
 
+## Vibe coded
+
+This project is 100% vibe coded with [GSD](https://github.com/btheroux/get-shit-done). The full planning artifacts (research, phase plans, execution summaries) are in the [`.planning/`](.planning/) folder.
+
 ## License
 
 MIT

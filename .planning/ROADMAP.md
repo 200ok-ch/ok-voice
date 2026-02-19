@@ -25,7 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Requirements**: CORE-06, CORE-07
 **Success Criteria** (what must be TRUE):
   1. User can create a config file with API key and application loads it on startup
-  2. Application validates dependencies (Babashka, PipeWire, xdotool) are installed on first run
+  2. Application validates dependencies (PipeWire, xdotool, notify-send) are installed on first run
   3. User receives desktop notification if config file is missing or API key is invalid
   4. User receives desktop notification if required dependencies are not found
 **Plans**: 2 plans in 2 waves

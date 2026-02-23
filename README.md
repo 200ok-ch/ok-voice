@@ -93,4 +93,4 @@ This project is 100% vibe coded with [GSD](https://github.com/btheroux/get-shit-
 
 ## License
 
-MIT
+AGPL-3.0 — see [LICENSE](LICENSE) for details.

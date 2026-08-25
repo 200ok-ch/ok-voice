@@ -1,13 +1,14 @@
 # ok-voice
 
-`ok-voice` is a toggle-driven voice-to-text application for Linux on X11. The
-first invocation starts recording. The second stops recording, sends the WAV
-file to an OpenAI-compatible Whisper endpoint, and pastes the returned text
-into the window that was active when recording started.
+Press a hotkey, speak, and paste the transcription at your cursor. `ok-voice`
+is a toggle-driven voice-to-text application for Linux on X11 using a
+configurable OpenAI-compatible Whisper endpoint.
 
-Transcription is performed as one standard `POST /v1/audio/transcriptions`
-request after recording stops. The application does not use the OpenAI
-Realtime API or WebSockets.
+- **Toggle mode**: first press starts recording, second press stops
+- **Batch transcription**: uploads one completed WAV through the standard
+  `/v1/audio/transcriptions` API; no Realtime API or WebSocket
+- **Automatic language detection**: no language configuration required
+- **Unicode output**: transfers UTF-8 through the X11 clipboard
 
 ## Requirements
 
@@ -16,15 +17,27 @@ Realtime API or WebSockets.
 - `xdotool`
 - `xclip`
 - `notify-send` from libnotify
+- `xbindkeys` or another external hotkey manager
 - An X11 desktop session
-- An OpenAI-compatible audio transcription endpoint and Bearer credential
+- An OpenAI-compatible transcription endpoint and Bearer credential
 
-On Debian-derived systems, the system dependencies are typically available
-from `pulseaudio-utils`, `xdotool`, `xclip`, and `libnotify-bin`.
+On Debian/Ubuntu:
 
-## Configuration
+```sh
+sudo apt install pulseaudio-utils xdotool xclip libnotify-bin xbindkeys
+```
 
-Create `~/.config/ok-voice/config.yaml` with mode `600`:
+## Setup
+
+Create the configuration directory and copy the example:
+
+```sh
+mkdir -p ~/.config/ok-voice
+cp resources/config.example.yaml ~/.config/ok-voice/config.yaml
+chmod 600 ~/.config/ok-voice/config.yaml
+```
+
+Edit `~/.config/ok-voice/config.yaml`:
 
 ```yaml
 api-url: "https://whisper-turbo.twohundredok.com/v1/audio/transcriptions"
@@ -53,6 +66,21 @@ HTTP endpoint requires `allow-insecure-http: true`.
 Never commit the real user configuration or an API key. The tracked
 `resources/config.example.yaml` contains placeholders only.
 
+## Hotkey
+
+Add a binding to `~/.xbindkeysrc`:
+
+```text
+"cd ~/src/200ok/ok-voice/ && bb -m ok-voice.core"
+    F9
+```
+
+Change the checkout path and key as needed, then reload xbindkeys:
+
+```sh
+xbindkeys --poll-rc
+```
+
 ## Usage
 
 Run the application once to start recording:
@@ -61,34 +89,46 @@ Run the application once to start recording:
 bb -m ok-voice.core
 ```
 
-Run the same command again to stop and transcribe. Notifications indicate the
-recording, transcription, completion, and error states. Temporary WAV and
-runtime state files are removed when processing completes.
+Run the same command again to stop and transcribe. The Babashka task is also
+available as `bb ok-voice`. Notifications indicate recording, transcription,
+completion, and error states.
 
-For xbindkeys:
+## How it works
 
-```text
-"cd ~/src/200ok/ok-voice/ && bb -m ok-voice.core"
-    F9
-```
-
-The Babashka task is also available as `bb ok-voice`.
+1. The first invocation records 16 kHz mono audio from the default PulseAudio
+   input into a temporary WAV file.
+2. The second invocation writes a runtime stop request.
+3. The recording process uploads the WAV to the configured
+   OpenAI-compatible endpoint and reads the JSON `text` response.
+4. The original X11 window is activated and receives the transcript through
+   the UTF-8 clipboard.
+5. Temporary WAV and runtime state files are removed.
 
 ## Text insertion
 
-The transcript is transferred as UTF-8 through the X11 clipboard rather than
-being typed as synthetic character keypresses. X11 keyboard events cannot
-represent arbitrary Unicode reliably; direct `xdotool type` input can corrupt
-characters such as German umlauts.
+The transcript is transferred through the X11 clipboard rather than typed as
+synthetic character keypresses. X11 keyboard events cannot represent arbitrary
+Unicode reliably; direct `xdotool type` input can corrupt characters such as
+German umlauts.
 
 `ok-voice` restores the previous textual clipboard after pasting. It uses
 `Shift+Insert` for normal X11 applications and `Ctrl+Shift+V` for Kitty,
 selected from the target window's X11 class. `xdotool` remains responsible
 only for restoring window focus and sending the paste shortcut.
 
-## Development checks
+## Development
 
 ```sh
 clj-kondo --lint src --fail-level warning
 git diff --check
 ```
+
+## Vibe coded
+
+This project is 100% vibe coded with
+[GSD](https://github.com/btheroux/get-shit-done). The full planning artifacts
+are in the [`.planning/`](.planning/) folder.
+
+## License
+
+AGPL-3.0 - see [LICENSE](LICENSE) for details.

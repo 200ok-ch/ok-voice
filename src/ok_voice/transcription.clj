@@ -1,86 +1,61 @@
 (ns ok-voice.transcription
-  (:require [ok-voice.audio :as audio]
-            [ok-voice.websocket :as ws]
-            [ok-voice.notify :as notify]))
+  (:require [cheshire.core :as json]
+            [clojure.java.io :as io])
+  (:import [java.io ByteArrayOutputStream]
+           [java.net URI]
+           [java.net.http HttpClient HttpRequest
+            HttpRequest$BodyPublishers HttpResponse$BodyHandlers]
+           [java.nio.charset StandardCharsets]
+           [java.time Duration]
+           [java.util UUID]))
 
-;; Pipeline state
-(def ^:private text-buffer (atom ""))
-(def ^:private ready? (atom (promise)))
-(def ^:private pipeline (atom nil))
+(defn- write-string! [^ByteArrayOutputStream out value]
+  (.write out (.getBytes ^String value StandardCharsets/UTF_8)))
 
-(declare stop!)
+(defn- multipart-body [file model boundary]
+  (let [out (ByteArrayOutputStream.)
+        part (fn [name value]
+               (write-string! out (str "--" boundary "\r\n"
+                                       "Content-Disposition: form-data; name=\"" name "\"\r\n\r\n"
+                                       value "\r\n")))]
+    (part "model" model)
+    (part "response_format" "json")
+    (write-string! out (str "--" boundary "\r\n"
+                            "Content-Disposition: form-data; name=\"file\"; filename=\"recording.wav\"\r\n"
+                            "Content-Type: audio/wav\r\n\r\n"))
+    (with-open [in (io/input-stream file)]
+      (io/copy in out))
+    (write-string! out (str "\r\n--" boundary "--\r\n"))
+    (.toByteArray out)))
 
-(defn start!
-  "Connects to OpenAI, starts audio capture, and begins streaming transcription.
-   opts: {:on-text (fn [delta] ...)} — called with each transcription delta.
-   Returns pipeline map on success, nil on failure."
-  [api-key opts]
-  (reset! text-buffer "")
-  (reset! ready? (promise))
-  (let [on-text (:on-text opts)
-        websocket (ws/connect! api-key
-                    {:on-ready
-                     (fn []
-                       (deliver @ready? true)
-                       (binding [*out* *err*]
-                         (println "[ready]")))
+(defn- response-error [body status]
+  (try
+    (or (get-in (json/parse-string body true) [:error :message])
+        (str "HTTP " status))
+    (catch Exception _
+      (str "HTTP " status))))
 
-                     :on-delta
-                     (fn [delta]
-                       (swap! text-buffer str delta)
-                       (when on-text (on-text delta)))
-
-                     :on-completed
-                     (fn [_transcript])
-
-                     :on-speech-started
-                     (fn [])
-
-                     :on-speech-stopped
-                     (fn [])
-
-                     :on-error
-                     (fn [msg]
-                       (binding [*out* *err*]
-                         (println "[error]" msg))
-                       (notify/error "ok-voice" (str "Error: " msg))
-                       (when-let [p @pipeline]
-                         (stop! p)))
-
-                     :on-close
-                     (fn []
-                       (binding [*out* *err*]
-                         (println "[disconnected]"))
-                       (when-let [p @pipeline]
-                         (audio/stop! (:audio-proc p))))})]
-    (if (deref @ready? 10000 nil)
-      (let [audio-proc    (audio/start!)
-            audio-future  (future
-                            (audio/stream-chunks! audio-proc
-                              (fn [chunk] (ws/send-audio! websocket chunk))))
-            p             {:ws websocket
-                           :audio-proc audio-proc
-                           :audio-thread audio-future}]
-        (reset! pipeline p)
-        p)
-      (do
-        (notify/error "ok-voice" "Failed to connect to OpenAI")
-        (ws/close! websocket)
-        nil))))
-
-(defn stop!
-  "Stops audio capture, closes WebSocket, returns nil.
-   Safe to call with nil."
-  [pipeline-map]
-  (when pipeline-map
-    (reset! pipeline nil)
-    (audio/stop! (:audio-proc pipeline-map))
-    (deref (:audio-thread pipeline-map) 5000 nil)
-    (ws/close! (:ws pipeline-map))
-    (Thread/sleep 100)
-    nil))
-
-(defn get-text
-  "Returns the accumulated transcription text."
-  []
-  @text-buffer)
+(defn transcribe!
+  "Uploads a completed WAV file to an OpenAI-compatible transcription endpoint."
+  [api-url api-key model file]
+  (let [boundary (str "ok-voice-" (UUID/randomUUID))
+        body (multipart-body file model boundary)
+        client (-> (HttpClient/newBuilder)
+                   (.connectTimeout (Duration/ofSeconds 15))
+                   (.build))
+        request (-> (HttpRequest/newBuilder (URI/create api-url))
+                    (.timeout (Duration/ofMinutes 10))
+                    (.header "Authorization" (str "Bearer " api-key))
+                    (.header "Content-Type" (str "multipart/form-data; boundary=" boundary))
+                    (.POST (HttpRequest$BodyPublishers/ofByteArray body))
+                    (.build))
+        response (.send client request (HttpResponse$BodyHandlers/ofString))
+        status (.statusCode response)
+        response-body (.body response)]
+    (when-not (<= 200 status 299)
+      (throw (ex-info (str "Transcription failed: " (response-error response-body status))
+                      {:status status})))
+    (let [text (:text (json/parse-string response-body true))]
+      (when-not (string? text)
+        (throw (ex-info "Transcription response did not contain text" {})))
+      text)))

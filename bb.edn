@@ -1,5 +1,4 @@
 {:paths ["src"]
- :deps {clj-commons/clj-yaml {:mvn/version "1.0.29"}
-        org.babashka/http-client {:mvn/version "0.4.22"}}
+ :deps {clj-commons/clj-yaml {:mvn/version "1.0.29"}}
  :tasks {ok-voice {:doc "Run ok-voice"
                    :task (exec 'ok-voice.core/-main)}}}

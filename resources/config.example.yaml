@@ -1,3 +1,10 @@
 # ok-voice configuration
 # Copy to ~/.config/ok-voice/config.yaml
-api-key: "sk-your-openai-api-key-here"
+# api-url may also be set with OPENAI_API_URL.
+api-url: "https://whisper-turbo.twohundredok.com/v1/audio/transcriptions"
+# api-key may also be set with OPENAI_API_KEY.
+api-key: "your-api-key-here"
+# model may also be set with OPENAI_MODEL.
+model: "large-v3-turbo"
+# Required only for non-local HTTP endpoints. Prefer HTTPS.
+allow-insecure-http: false

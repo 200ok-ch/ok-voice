@@ -3,14 +3,22 @@
             [clojure.java.io :as io]
             [clojure.string :as str]))
 
-(def ^:private pid-path
-  (str (or (System/getenv "XDG_RUNTIME_DIR") "/tmp")
-       "/ok-voice.pid"))
+(def ^:private runtime-dir
+  (or (System/getenv "XDG_RUNTIME_DIR") "/tmp"))
+
+(def ^:private pid-path (str runtime-dir "/ok-voice.pid"))
+(def ^:private stop-path (str runtime-dir "/ok-voice.stop"))
+
+(defn- delete-file! [path]
+  (let [file (io/file path)]
+    (when (.exists file)
+      (.delete file))))
 
 (defn- current-pid []
   (parse-long (str/trim (:out (p/sh "sh" "-c" "echo $PPID")))))
 
 (defn write-pid! []
+  (delete-file! stop-path)
   (spit pid-path (str (current-pid)))
   nil)
 
@@ -23,9 +31,8 @@
     (catch Exception _ nil)))
 
 (defn remove-pid! []
-  (let [f (io/file pid-path)]
-    (when (.exists f)
-      (.delete f)))
+  (delete-file! pid-path)
+  (delete-file! stop-path)
   nil)
 
 (defn process-alive? [pid]
@@ -39,6 +46,15 @@
       pid
       (do (remove-pid!) nil))))
 
-(defn signal-stop! [pid]
-  (p/sh "kill" (str pid))
+(defn request-stop! []
+  (spit stop-path "stop")
+  nil)
+
+(defn wait-for-stop! []
+  (loop []
+    (if (.exists (io/file stop-path))
+      (delete-file! stop-path)
+      (do
+        (Thread/sleep 100)
+        (recur))))
   nil)

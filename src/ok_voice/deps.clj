@@ -3,11 +3,17 @@
             [clojure.string :as str]
             [ok-voice.notify :as notify]))
 
+(def wayland?
+  "True inside a Wayland session; paste must then avoid X11-only tools."
+  (some? (System/getenv "WAYLAND_DISPLAY")))
+
 (def required-deps
-  [{:cmd "parecord"  :name "PulseAudio" :install "pulseaudio-utils"}
-   {:cmd "xdotool"     :name "xdotool"    :install "xdotool"}
-   {:cmd "xclip"       :name "xclip"      :install "xclip"}
-   {:cmd "notify-send" :name "libnotify"   :install "libnotify"}])
+  (cond-> [{:cmd "parecord"   :name "PulseAudio" :install "pulseaudio-utils"}
+           {:cmd "notify-send" :name "libnotify"  :install "libnotify"}]
+    wayland? (into [{:cmd "wl-copy"  :name "wl-clipboard" :install "wl-clipboard"}
+                    {:cmd "ydotool" :name "ydotool"       :install "ydotool (uinput)"}])
+    (not wayland?) (into [{:cmd "xdotool" :name "xdotool" :install "xdotool"}
+                          {:cmd "xclip"   :name "xclip"   :install "xclip"}])))
 
 (defn check-cmd [cmd]
   (try

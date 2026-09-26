@@ -1,9 +1,11 @@
 (ns ok-voice.text
   (:require [babashka.process :as p]
             [clojure.java.io :as io]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [ok-voice.deps :as deps]))
 
 (def ^:private null-device (io/file "/dev/null"))
+
 
 (defn activate-window!
   "Activates and raises an X11 window by ID."
@@ -38,18 +40,56 @@
       "ctrl+shift+v"
       "shift+Insert")))
 
+(defn- wayland-clipboard-text []
+  (try
+    (let [{:keys [exit out]}
+          (p/sh "wl-paste" "--no-newline" "--type" "text/plain;charset=utf-8")]
+      (when (zero? exit)
+        out))
+    (catch Exception _ nil)))
+
+(defn- wayland-set-clipboard! [text]
+  ;; wl-copy forks a selection owner, like xclip. Redirect inherited streams so
+  ;; callers do not wait on pipes held open by the background process.
+  (p/sh {:in (str text)
+         :out null-device
+         :err null-device}
+        "wl-copy" "--type" "text/plain;charset=utf-8"))
+
+(defn- wayland-paste-key! []
+  ;; evdev codes: 42 = KEY_LEFTSHIFT, 110 = KEY_INSERT.
+  ;; ydotoold runs as a system service listening on /run/ydotool.sock.
+  (p/sh {:env {"YDOTOOL_SOCKET"
+               (or (System/getenv "YDOTOOL_SOCKET") "/run/ydotool.sock")}}
+        "ydotool" "key" "42:1" "110:1" "110:0" "42:0"))
+
+(defn- wayland-paste-text! [text]
+  (let [previous-text (wayland-clipboard-text)]
+    (try
+      (wayland-set-clipboard! text)
+      (Thread/sleep 50)
+      (wayland-paste-key!)
+      (Thread/sleep 100)
+      (finally
+        (when (some? previous-text)
+          (wayland-set-clipboard! previous-text)))))
+  nil)
+
+
 (defn paste-text!
   "Pastes UTF-8 text into the focused window and restores textual clipboard data."
   [text window-id]
   (when (and text (seq (str text)))
-    (let [previous-text (clipboard-text)
-          shortcut (paste-shortcut window-id)]
-      (try
-        (set-clipboard! text)
-        (Thread/sleep 50)
-        (p/sh "xdotool" "key" "--clearmodifiers" shortcut)
-        (Thread/sleep 100)
-        (finally
-          (when (some? previous-text)
-            (set-clipboard! previous-text)))))
+    (if deps/wayland?
+      (wayland-paste-text! text)
+      (let [previous-text (clipboard-text)
+            shortcut (paste-shortcut window-id)]
+        (try
+          (set-clipboard! text)
+          (Thread/sleep 50)
+          (p/sh "xdotool" "key" "--clearmodifiers" shortcut)
+          (Thread/sleep 100)
+          (finally
+            (when (some? previous-text)
+              (set-clipboard! previous-text))))))
     nil))

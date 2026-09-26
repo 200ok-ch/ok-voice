@@ -23,7 +23,8 @@
             api-key (config/validate-api-key! cfg)
             api-url (config/validate-api-url! cfg)
             model (config/get-model cfg)
-            wid (str/trim (:out (p/sh "xdotool" "getactivewindow")))]
+          wid (when-not deps/wayland?
+                (str/trim (:out (p/sh "xdotool" "getactivewindow"))))]
         (toggle/write-pid!)
         (notify/info "ok-voice" "Recording started...")
         (let [recording (audio/start!)]

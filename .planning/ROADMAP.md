@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation & Configuration** - Config loading and error notifications
 - [x] **Phase 2: Audio Capture & Transcription** - Audio pipeline and OpenAI WebSocket integration
 - [x] **Phase 3: Toggle Mode & Orchestration** - Hotkey-triggered start/stop recording
-- [ ] **Phase 4: Text Output** - Insert transcription at cursor via xdotool
+- [x] **Phase 4: Text Output** - Insert transcription at cursor via xdotool
 
 ## Phase Details
 
@@ -74,11 +74,11 @@ Plans:
   2. Text appears in the currently active X11 window (focus is maintained correctly)
   3. Special characters and Unicode text are inserted correctly (not garbled)
   4. Text insertion completes fast enough to feel instantaneous to the user
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] 04-01: xdotool text insertion
-- [ ] 04-02: Unicode and focus handling
+- [x] 04-01-PLAN.md — Text insertion module (text.clj + xclip dep)
+- [x] 04-02-PLAN.md — Core.clj integration and end-to-end test
 
 ## Progress
 
@@ -90,4 +90,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Foundation & Configuration | 2/2 | Complete | 2026-02-19 |
 | 2. Audio Capture & Transcription | 3/3 | Complete | 2026-02-19 |
 | 3. Toggle Mode & Orchestration | 2/2 | Complete | 2026-02-19 |
-| 4. Text Output | 0/2 | Not started | - |
+| 4. Text Output | 2/2 | Complete | 2026-02-19 |

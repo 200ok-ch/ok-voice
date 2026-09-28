@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-19)
 
 **Core value:** Instant voice-to-text anywhere on Linux: press hotkey, speak, text appears at cursor
-**Current focus:** Phase 3 complete. Next: Text Output (Phase 4)
+**Current focus:** All 4 phases complete. Milestone ready for verification.
 
 ## Current Position
 
-Phase: 3 of 4 (Toggle Mode & Orchestration)
-Plan: 2 of 2 in current phase (03-01, 03-02 complete)
-Status: Phase 3 complete -- ready for Phase 4
-Last activity: 2026-02-19 — Completed plan 03-02 (Toggle mode orchestration)
+Phase: 4 of 4 (Text Output)
+Plan: 2 of 2 in current phase (04-01, 04-02 complete)
+Status: Phase 4 complete -- all phases done
+Last activity: 2026-02-19 — Completed plan 04-02 (Core.clj integration)
 
-Progress: [█████████░] ~95% (phases 1-3 complete, phase 4 remaining)
+Progress: [██████████] 100% (all 4 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 1.6 min
-- Total execution time: 0.19 hours
+- Total plans completed: 9
+- Average duration: 1.3 min
+- Total execution time: 0.20 hours
 
 **By Phase:**
 
@@ -30,9 +30,10 @@ Progress: [█████████░] ~95% (phases 1-3 complete, phase 4 re
 | 01 | 2 | 6 min | 3 min |
 | 02 | 3 | 3 min | 1 min |
 | 03 | 2 | 2 min | 1 min |
+| 04 | 2 | 1 min | <1 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (1 min), 02-02 (1 min), 02-03 (1 min), 03-01 (1 min), 03-02 (1 min)
+- Last 5 plans: 02-03 (1 min), 03-01 (1 min), 03-02 (1 min), 04-01 (<1 min), 04-02 (<1 min)
 - Trend: Stable at ~1 min/plan
 
 *Updated after each plan completion*
@@ -62,18 +63,20 @@ Recent decisions affecting current work:
 - Phase 3 (03-02): Toggle check first in -main for fast stop path (no config/deps loading)
 - Phase 3 (03-02): PID written before pipeline start to minimize race window
 - Phase 3 (03-02): Shutdown hook removes PID first, then stops pipeline
-- Phase 4 (upcoming): Text insertion via xdotool with clipboard fallback for Unicode
+- Phase 4 (04-01): Clipboard paste (xclip + xdotool ctrl+v) for Unicode reliability
+- Phase 4 (04-01): 50ms delay between clipboard set and paste for X11 event propagation
+- Phase 4 (04-02): Transcription logged to stderr, not stdout (clean for pipeline usage)
 
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-None yet.
+None.
 
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 03-02-PLAN.md (Toggle mode orchestration) -- Phase 3 complete
-Resume file: .planning/phases/03-toggle-mode-orchestration/03-02-SUMMARY.md
+Stopped at: Completed 04-02-PLAN.md (Core.clj integration) -- All phases complete
+Resume file: .planning/phases/04-text-output/04-02-PLAN.md

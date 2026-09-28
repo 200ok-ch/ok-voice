@@ -43,7 +43,7 @@
 (defn- wayland-clipboard-text []
   (try
     (let [{:keys [exit out]}
-          (p/sh "wl-paste" "--no-newline" "--type" "text/plain;charset=utf-8")]
+          (p/sh "wl-paste" "--no-newline" "--type" "text")]
       (when (zero? exit)
         out))
     (catch Exception _ nil)))
@@ -57,11 +57,9 @@
         "wl-copy" "--type" "text/plain;charset=utf-8"))
 
 (defn- wayland-paste-key! []
-  ;; evdev codes: 42 = KEY_LEFTSHIFT, 110 = KEY_INSERT.
-  ;; ydotoold runs as a system service listening on /run/ydotool.sock.
-  (p/sh {:env {"YDOTOOL_SOCKET"
-               (or (System/getenv "YDOTOOL_SOCKET") "/run/ydotool.sock")}}
-        "ydotool" "key" "42:1" "110:1" "110:0" "42:0"))
+  ;; ydotool uses YDOTOOL_SOCKET when configured and otherwise discovers the
+  ;; daemon socket from XDG_RUNTIME_DIR.
+  (p/sh "ydotool" "key" "42:1" "110:1" "110:0" "42:0"))
 
 (defn- wayland-paste-text! [text]
   (let [previous-text (wayland-clipboard-text)]

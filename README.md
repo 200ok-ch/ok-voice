@@ -1,31 +1,40 @@
 # ok-voice
 
 Press a hotkey, speak, and paste the transcription at your cursor. `ok-voice`
-is a toggle-driven voice-to-text application for Linux on X11 using a
-configurable OpenAI-compatible Whisper endpoint.
+is a toggle-driven voice-to-text application for Linux on X11 and Wayland
+using a configurable OpenAI-compatible Whisper endpoint.
 
 - **Toggle mode**: first press starts recording, second press stops
 - **Batch transcription**: uploads one completed WAV through the standard
   `/v1/audio/transcriptions` API; no Realtime API or WebSocket
 - **Automatic language detection**: no language configuration required
-- **Unicode output**: transfers UTF-8 through the X11 clipboard
+- **Unicode output**: transfers UTF-8 through the desktop clipboard
 
 ## Requirements
 
 - [Babashka](https://babashka.org/)
 - `parecord` from PulseAudio utilities
-- `xdotool`
-- `xclip`
 - `notify-send` from libnotify
-- `xbindkeys` or another external hotkey manager
-- An X11 desktop session
+- On X11: `xdotool`, `xclip`, and `xbindkeys` or another hotkey manager
+- On Wayland: `wl-clipboard`, `ydotool`, a running `ydotoold`, and a desktop
+  hotkey binding
 - An OpenAI-compatible transcription endpoint and Bearer credential
 
-On Debian/Ubuntu:
+On Debian/Ubuntu with X11:
 
 ```sh
 sudo apt install pulseaudio-utils xdotool xclip libnotify-bin xbindkeys
 ```
+
+On Debian/Ubuntu with Wayland:
+
+```sh
+sudo apt install pulseaudio-utils wl-clipboard ydotool libnotify-bin
+```
+
+The user running `ok-voice` must be able to access the `ydotoold` socket.
+`ydotool` honors `YDOTOOL_SOCKET` when set and otherwise uses its standard
+socket under `$XDG_RUNTIME_DIR`, with `/tmp` as a fallback.
 
 ## Setup
 
@@ -100,21 +109,20 @@ completion, and error states.
 2. The second invocation writes a runtime stop request.
 3. The recording process uploads the WAV to the configured
    OpenAI-compatible endpoint and reads the JSON `text` response.
-4. The original X11 window is activated and receives the transcript through
-   the UTF-8 clipboard.
+4. The focused window receives the transcript through the UTF-8 clipboard.
 5. Temporary WAV and runtime state files are removed.
 
 ## Text insertion
 
-The transcript is transferred through the X11 clipboard rather than typed as
-synthetic character keypresses. X11 keyboard events cannot represent arbitrary
-Unicode reliably; direct `xdotool type` input can corrupt characters such as
-German umlauts.
+The transcript is transferred through the desktop clipboard rather than typed
+as synthetic character keypresses. Character key events cannot represent
+arbitrary Unicode reliably and can corrupt characters such as German umlauts.
 
-`ok-voice` restores the previous textual clipboard after pasting. It uses
-`Shift+Insert` for normal X11 applications and `Ctrl+Shift+V` for Kitty,
-selected from the target window's X11 class. `xdotool` remains responsible
-only for restoring window focus and sending the paste shortcut.
+`ok-voice` restores the previous textual clipboard after pasting. On X11, it
+uses `Shift+Insert` for normal applications and `Ctrl+Shift+V` for Kitty,
+selected from the target window's X11 class; `xdotool` restores window focus
+and sends the shortcut. On Wayland, `wl-clipboard` negotiates an available text
+MIME type and `ydotool` sends `Shift+Insert` to the focused window.
 
 ## Development
 
